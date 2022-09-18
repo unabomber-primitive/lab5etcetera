@@ -131,7 +131,7 @@ public class Collection {
 
     public void setCollection(ArrayList<Route> collection) {
         this.collection = collection;
-        Route.setIdCounter(getMaxId() + 1);
+        Route.setIdCounter(getMaxId());
     }
 
     public Scanner getIn() {

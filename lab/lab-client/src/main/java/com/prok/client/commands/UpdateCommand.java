@@ -13,7 +13,7 @@ public class UpdateCommand implements Command {
     @Override
     public void execute(String arg) {
         try {
-            Integer id = Integer.getInteger(arg);
+            Integer id = Integer.parseInt(arg);
             RouteFactory factory = new RouteFactory(collection.getIn());
             collection.replaceById(id, factory.getRoute());
         } catch (IllegalArgumentException e) {

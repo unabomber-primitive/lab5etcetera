@@ -2,6 +2,8 @@ package com.prok.client.commands;
 
 import com.prok.common.entities.Collection;
 
+import java.util.ConcurrentModificationException;
+
 public class RemoveByIdCommand implements Command {
     private final Collection collection;
 
@@ -12,10 +14,10 @@ public class RemoveByIdCommand implements Command {
     @Override
     public void execute(String arg) {
         try {
-            Integer id = Integer.getInteger(arg);
+            Integer id = Integer.parseInt(arg);
             collection.removeById(id);
         } catch (NullPointerException | IllegalArgumentException e) {
             System.out.println(e.getMessage());
-        }
+        } catch (ConcurrentModificationException e) {}
     }
 }

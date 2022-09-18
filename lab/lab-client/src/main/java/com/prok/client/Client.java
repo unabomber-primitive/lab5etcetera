@@ -75,6 +75,7 @@ public final class Client {
                 if (input.length > maxOfArgs + 1) {
                     System.out.println("Введены лишние аргументы");
                 } else if (input.length == maxOfArgs + 1) {
+                    //System.out.println(input[1] + input[2]);
                     invoker.invoke(input[1], input[2]);
                 } else if (input.length == 2) {
                     invoker.invoke(input[1], null);
@@ -86,6 +87,7 @@ public final class Client {
                 break;
             } catch (Exception e) {
                 System.out.println(e.getMessage());
+                e.printStackTrace();
             }
         }
     }

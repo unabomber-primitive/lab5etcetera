@@ -43,11 +43,11 @@ public final class FileManager {
         //xStream.aliasField("routes", FileManager.Result.class, "routes");
         xStream.alias("route", Route.class);
         xStream.addImplicitCollection(FileManager.Result.class, "routes");
-        fileName = System.getenv(ENV_FILENAME);
-        System.out.println("env checked");
-        if (fileName == null || "".equals(fileName)) {
-            throw new NullPointerException("Переменная окружения LAB5_FILENAME пустая.");
-        }
+//        fileName = System.getenv(ENV_FILENAME);
+//        if (fileName == null || "".equals(fileName)) {
+//            throw new NullPointerException("Переменная окружения LAB5_FILENAME пустая.");
+//        }
+//        System.out.println("env checked");
     }
 
 //    public FileManager() {
@@ -59,7 +59,14 @@ public final class FileManager {
 
     public static void loadTo(Collection collection) {
         try {
+            fileName = System.getenv(ENV_FILENAME);
+            if (fileName == null || "".equals(fileName)) {
+                System.out.println("Переменная окружения LAB5_FILENAME пустая.");
+                throw new NoSuchElementException();
+            }
             Scanner scanner = new Scanner(new File(fileName));
+            System.out.println("env checked");
+            System.out.println(fileName);
             StringBuilder xml = new StringBuilder();
             while (scanner.hasNext()) {
                 xml.append(scanner.nextLine()).append("\n");
@@ -67,17 +74,17 @@ public final class FileManager {
             Result res = (Result) xStream.fromXML(xml.toString());
             collection.setCollection(res.getRoutes());
         } catch (FileNotFoundException e) {
-            System.out.println("Файл не найден. \n Запрашиваемый адрес: " + fileName);
+            System.out.println("Файл не найден. \nАдрес, переданный в переменной окружения LAB5_FILENAME: " + fileName);
             throw new NoSuchElementException();
         }
     }
 
     public static void saveFile(Collection collection) {
         fileName = System.getenv(ENV_FILENAME);
-        System.out.println(fileName);
         if (fileName == null || "".equals(fileName)) {
             throw new NullPointerException("Переменная окружения LAB5_FILENAME пустая.");
         }
+        System.out.println("Saved to " + fileName);
         BufferedWriter out;
         try {
             out = new BufferedWriter(new FileWriter(fileName));

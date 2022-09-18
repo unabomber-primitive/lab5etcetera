@@ -23,7 +23,6 @@ public class ExecuteScriptCommand implements Command {
 
         // TODO класс ExecuteScriptPath кторой хранит массив названий файлов которые выполняются
 
-
         // TODO проверить что файл существует
         File file = new File(arg);
         if (!file.exists() || file.isDirectory()) {
@@ -32,14 +31,20 @@ public class ExecuteScriptCommand implements Command {
             throw new IllegalArgumentException("Файл вызывает сам себя.");
         } else {
             ExecuteScriptPath.addPath(arg);
-            Scanner new_in = new Scanner(arg);
-            collection.setIn(new_in);
-
-            Client fileClient = new Client(collection);
+//            Scanner new_in = new Scanner(file);
+//            collection.setIn(new_in);
+//
+//            Client fileClient = new Client(collection);
             try {
+                Scanner new_in = new Scanner(file);
+                collection.setIn(new_in);
+
+                Client fileClient = new Client(collection);
                 fileClient.startProcess();
             } catch (NoSuchElementException e) {
                 System.out.println("Выполнение скрипта закончилось.");
+            } catch (FileNotFoundException e) {
+                System.out.println("Файл скрипта не найден.");
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
