@@ -71,8 +71,10 @@ public final class FileManager {
             while (scanner.hasNext()) {
                 xml.append(scanner.nextLine()).append("\n");
             }
-            Result res = (Result) xStream.fromXML(xml.toString());
-            collection.setCollection(res.getRoutes());
+            if (xml.length() != 0) {
+                Result res = (Result) xStream.fromXML(xml.toString());
+                collection.setCollection(res.getRoutes());
+            }
         } catch (FileNotFoundException e) {
             System.out.println("Файл не найден. \nАдрес, переданный в переменной окружения LAB5_FILENAME: " + fileName);
             throw new NoSuchElementException();
