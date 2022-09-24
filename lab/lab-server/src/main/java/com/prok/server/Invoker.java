@@ -1,10 +1,9 @@
-package com.prok.client;
+package com.prok.server;
 
 
-import com.prok.client.commands.Command;
+import com.prok.common.Command;
 import com.prok.common.entities.Collection;
 
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 
 public class Invoker {

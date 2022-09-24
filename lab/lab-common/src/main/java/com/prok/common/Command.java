@@ -1,4 +1,4 @@
-package com.prok.client.commands;
+package com.prok.common;
 
 public interface Command {
     void execute(String arg);

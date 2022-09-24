@@ -1,5 +1,6 @@
-package com.prok.client.commands;
+package com.prok.server.commands;
 
+import com.prok.common.Command;
 import com.prok.common.entities.Collection;
 
 public class RemoveLastCommand implements Command {

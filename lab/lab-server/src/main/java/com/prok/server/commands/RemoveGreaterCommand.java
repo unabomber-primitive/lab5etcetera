@@ -1,11 +1,13 @@
-package com.prok.client.commands;
+package com.prok.server.commands;
 
+import com.prok.common.Command;
 import com.prok.common.entities.Collection;
+import com.prok.common.entities.RouteFactory;
 
-public class ShuffleCommand implements Command {
+public class RemoveGreaterCommand implements Command {
     private final Collection collection;
 
-    public ShuffleCommand(Collection collection) {
+    public  RemoveGreaterCommand(Collection collection) {
         this.collection = collection;
     }
 
@@ -14,6 +16,7 @@ public class ShuffleCommand implements Command {
         if (arg != null) {
             throw new IllegalArgumentException("Эта команда не поддерживает аргументы.");
         }
-        collection.shuffle();
+        RouteFactory factory = new RouteFactory(collection.getIn());
+        collection.removeGreater(factory.getRoute());
     }
 }

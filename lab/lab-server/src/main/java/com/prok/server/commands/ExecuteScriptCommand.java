@@ -1,6 +1,7 @@
-package com.prok.client.commands;
+package com.prok.server.commands;
 
-import com.prok.client.Client;
+import com.prok.server.ListenProcess;
+import com.prok.common.Command;
 import com.prok.common.entities.Collection;
 
 import java.io.File;
@@ -21,9 +22,6 @@ public class ExecuteScriptCommand implements Command {
         }
         Scanner old_in = collection.getIn();
 
-        // TODO класс ExecuteScriptPath кторой хранит массив названий файлов которые выполняются
-
-        // TODO проверить что файл существует
         File file = new File(arg);
         if (!file.exists() || file.isDirectory()) {
             throw new IllegalArgumentException("Путь к файлу-скрипту указан неверно.");
@@ -31,15 +29,12 @@ public class ExecuteScriptCommand implements Command {
             throw new IllegalArgumentException("Файл вызывает сам себя.");
         } else {
             ExecuteScriptPath.addPath(arg);
-//            Scanner new_in = new Scanner(file);
-//            collection.setIn(new_in);
-//
-//            Client fileClient = new Client(collection);
+
             try {
                 Scanner new_in = new Scanner(file);
                 collection.setIn(new_in);
 
-                Client fileClient = new Client(collection);
+                ListenProcess fileClient = new ListenProcess(collection);
                 fileClient.startProcess();
             } catch (NoSuchElementException e) {
                 System.out.println("Выполнение скрипта закончилось.");

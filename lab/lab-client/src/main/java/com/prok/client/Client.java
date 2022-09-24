@@ -1,94 +1,102 @@
 package com.prok.client;
 
-import com.prok.client.commands.*;
+import com.prok.common.Command;
+import com.prok.common.network.Request;
+import com.prok.common.network.Response;
 
-import com.prok.common.entities.Collection;
-//import com.prok.common.entities.Coordinates;
-import com.prok.common.util.FileManager;
-
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
+import java.util.Scanner;
 
-public final class Client {
-    private Collection collection;
-    private Invoker invoker;
-
-    public Client(Collection collection) {
-        if (collection == null) {
-            collection = new Collection();
-            FileManager.loadTo(collection);
+public class Client {
+    private Scanner in;
+    private SocketManager socketManager;
+    Command execute_script;
+    public Client() {
+        in = new Scanner(System.in);
+        try {
+            socketManager = new SocketManager();
+        } catch (IOException e) {
+            System.out.println("Ошибка при создании канала.");
+            System.out.println(e.getMessage());
+            System.exit(0);
         }
-        this.collection = collection;
-        this.invoker = invokerInit();
     }
 
-    private Invoker invokerInit() {
-        Command addCommand = new AddCommand(collection);
-        Command saveCommand = new SaveCommand(collection);
-        Command showCommand = new ShowCommand(collection);
-        Command exitCommand = new ExitCommand();
-        Command clearCommand = new ClearCommand(collection);
-        Command filterGreaterThanDistanceCommand = new FilterGreaterThanDistanceCommand(collection);
-        Command filterLessThanDistanceCommand = new FilterLessThanDistanceCommand(collection);
-        Command helpCommand = new HelpCommand();
-        Command infoCommand = new InfoCommand(collection);
-        Command printAscendingCommand = new PrintAscendingCommand(collection);
-        Command removeByIdCommand = new RemoveByIdCommand(collection);
-        Command removeGreaterCommand = new RemoveGreaterCommand(collection);
-        Command removeLastCommand = new RemoveLastCommand(collection);
-        Command shuffleCommand = new ShuffleCommand(collection);
-        Command updateCommand = new UpdateCommand(collection);
-        Command executeScriptCommand = new ExecuteScriptCommand(collection);
-        Invoker invoker = new Invoker(collection);
-        invoker.register("add", addCommand);
-        invoker.register("save", saveCommand);
-        invoker.register("show", showCommand);
-        invoker.register("exit", exitCommand);
-        invoker.register("help", helpCommand);
-        invoker.register("execute_script", executeScriptCommand);
-        invoker.register("clear", clearCommand);
-        invoker.register("filter_greater_than_distance", filterGreaterThanDistanceCommand);
-        invoker.register("filter_less_than_distance", filterLessThanDistanceCommand);
-        invoker.register("info", infoCommand);
-        invoker.register("print_ascending", printAscendingCommand);
-        invoker.register("remove_by_id", removeByIdCommand);
-        invoker.register("remove_greater", removeGreaterCommand);
-        invoker.register("remove_last", removeLastCommand);
-        invoker.register("shuffle", shuffleCommand);
-        invoker.register("update", updateCommand);
-        return invoker;
+    public Scanner getIn() {
+        return in;
     }
 
-    public void startProcess() {
-        final int maxOfArgs = 2;
+    public void setIn(Scanner in) {
+        this.in = in;
+    }
+
+    public Boolean processCommands() {
         System.out.println("Программа запущена");
-
         while (true) {
             String[] input;
+            Response checkResponse;
             try {
-                input = (" " + collection.getIn().nextLine()).split("\\s+");
-            } catch (NoSuchElementException e) {
-                System.out.println("Программа завершена");
-                break;
-            }
+                input = (" " + in.nextLine()).split("\\s+");
 
-            try {
-                if (input.length > maxOfArgs + 1) {
-                    System.out.println("Введены лишние аргументы");
-                } else if (input.length == maxOfArgs + 1) {
-                    //System.out.println(input[1] + input[2]);
-                    invoker.invoke(input[1], input[2]);
-                } else if (input.length == 2) {
-                    invoker.invoke(input[1], null);
-                } else {
-                    System.out.println("Вы не ввели команду");
+                checkResponse = checkCommandRequest(input);
+                if (checkResponse == null) {
+                    continue;
+                }
+
+                Boolean success = processResponse(checkResponse);
+                if (!success) {
+                    return false;
                 }
             } catch (NoSuchElementException e) {
-                System.out.println("\nПрограмма завершена");
-                break;
+                socketManager.closeConnection();
+                System.out.println("Программа завершена");
+                System.exit(0);
+                return true;
             } catch (Exception e) {
                 System.out.println(e.getMessage());
-                e.printStackTrace();
             }
         }
+    }
+
+    public Response checkCommandRequest(String[] input) {
+        Request request;
+        if (input.length >= 3) {
+            if ("execute_script".equals(input[1])) {
+                if (input.length == 3) {
+                    execute_script.execute(input[2]);
+                    return null;
+                } else {
+                    System.out.println("Вы неверно ввели аргументы для команды execute_script.");
+                    return null;
+                }
+            } else {
+                request = new Request(input[1], Arrays.copyOfRange(input, 2, input.length + 1));
+            }
+        } else if (input.length == 2) {
+            if ("exit".equals(input[1])) {
+                socketManager.closeConnection();
+                System.out.println("Программа завершена");
+                System.exit(0);
+                return null;
+            } else request = new Request(input[1], null);
+        } else {
+            System.out.println("Вы не ввели команду");
+            return null;
+        }
+        return socketManager.makeRequest(request);
+    }
+
+    public Boolean processResponse(Response response) {
+        if (!response.success) {
+            System.out.println("Неудачный запрос к серверу.");
+            return false;
+        }
+
+        if (!response.message.isEmpty()) {
+            System.out.println(response.message);
+        }
+        return true;
     }
 }

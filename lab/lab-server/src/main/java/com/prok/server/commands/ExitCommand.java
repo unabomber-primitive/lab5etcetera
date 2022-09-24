@@ -1,4 +1,6 @@
-package com.prok.client.commands;
+package com.prok.server.commands;
+
+import com.prok.common.Command;
 
 import java.util.NoSuchElementException;
 

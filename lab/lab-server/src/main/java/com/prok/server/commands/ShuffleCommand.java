@@ -1,11 +1,12 @@
-package com.prok.client.commands;
+package com.prok.server.commands;
 
+import com.prok.common.Command;
 import com.prok.common.entities.Collection;
 
-public class ShowCommand implements Command {
+public class ShuffleCommand implements Command {
     private final Collection collection;
 
-    public ShowCommand(Collection collection) {
+    public ShuffleCommand(Collection collection) {
         this.collection = collection;
     }
 
@@ -14,6 +15,6 @@ public class ShowCommand implements Command {
         if (arg != null) {
             throw new IllegalArgumentException("Эта команда не поддерживает аргументы.");
         }
-        System.out.println(collection);
+        collection.shuffle();
     }
 }

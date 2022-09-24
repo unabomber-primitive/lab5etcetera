@@ -1,13 +1,14 @@
-package com.prok.client.commands;
+package com.prok.server.commands;
 
+import com.prok.common.Command;
 import com.prok.common.entities.Collection;
 import com.prok.common.entities.RouteFieldType;
 import com.prok.common.util.Validator;
 
-public class FilterGreaterThanDistanceCommand implements Command {
+public class FilterLessThanDistanceCommand implements Command {
     private final Collection collection;
 
-    public FilterGreaterThanDistanceCommand(Collection collection) {
+    public FilterLessThanDistanceCommand(Collection collection) {
         this.collection = collection;
     }
 
@@ -16,7 +17,7 @@ public class FilterGreaterThanDistanceCommand implements Command {
         try {
             Float distance = Float.valueOf(arg);
             Validator.validateField(distance, RouteFieldType.DISTANCE);
-            System.out.println(collection.greaterThanDistanceToString(distance));
+            System.out.println(collection.lessThanDistanceToString(distance));
         } catch (NullPointerException | IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }

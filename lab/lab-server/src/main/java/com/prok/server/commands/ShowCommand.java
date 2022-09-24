@@ -1,12 +1,12 @@
-package com.prok.client.commands;
+package com.prok.server.commands;
 
+import com.prok.common.Command;
 import com.prok.common.entities.Collection;
-import com.prok.common.entities.RouteFactory;
 
-public class RemoveGreaterCommand implements Command {
+public class ShowCommand implements Command {
     private final Collection collection;
 
-    public  RemoveGreaterCommand(Collection collection) {
+    public ShowCommand(Collection collection) {
         this.collection = collection;
     }
 
@@ -15,7 +15,6 @@ public class RemoveGreaterCommand implements Command {
         if (arg != null) {
             throw new IllegalArgumentException("Эта команда не поддерживает аргументы.");
         }
-        RouteFactory factory = new RouteFactory(collection.getIn());
-        collection.removeGreater(factory.getRoute());
+        System.out.println(collection);
     }
 }

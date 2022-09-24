@@ -1,4 +1,4 @@
-package com.prok.client.commands;
+package com.prok.server.commands;
 
 import java.util.ArrayList;
 
