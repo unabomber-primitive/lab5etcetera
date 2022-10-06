@@ -1,10 +1,9 @@
 package com.prok.server.commands;
 
-import com.prok.common.Command;
-import com.prok.common.entities.Collection;
+import com.prok.common.network.Request;
+import com.prok.common.network.Response;
+import com.prok.server.Collection;
 import com.prok.common.entities.Route;
-
-import java.time.format.DateTimeFormatter;
 
 public class InfoCommand implements Command {
     private final Collection collection;
@@ -14,15 +13,15 @@ public class InfoCommand implements Command {
     }
 
     @Override
-    public void execute(String arg) {
-        if (arg != null) {
-            throw new IllegalArgumentException("Эта команда не поддерживает аргументы.");
+    public Response execute(Request request) {
+        if (request.args != null) {
+            return new Response(false, "Эта команда не поддерживает аргументы");
         }
-        System.out.println("Collection of entities info:\n"
+        String out = "Collection of entities info:\n"
                 + "- Collection type: " + collection.getArrayList().getClass().getSimpleName() + "\n"
-                + "- Initialisation date: " + collection.getInitialisationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss")) + "\n"
+                + "- Initialisation date: " + collection.getInitialisationDate() + "\n"
                 + "- Elements type: " + Route.class.getSimpleName() + "\n"
-                + "- Elements count: " + collection.getSize()
-        );
+                + "- Elements count: " + collection.getSize();
+        return new Response(true, out);
     }
 }

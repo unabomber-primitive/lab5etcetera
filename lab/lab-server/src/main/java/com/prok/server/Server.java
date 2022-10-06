@@ -8,17 +8,17 @@ public final class Server {
     }
 
     public static void main(String[] args) {
-        while (true) {
-            try {
-                ListenProcess server = new ListenProcess(null);
-                server.startProcess();
+        System.out.println("startServer");
+        try {
+            ListenProcess server = new ListenProcess(null);
+            server.startProcess();
 
-            } catch (NoSuchElementException e) {
-                System.out.println("Сервер закрыт");
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+        } catch (NoSuchElementException e) {
+            System.out.println("Сервер закрыт");
+            System.exit(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
-
     }
 }

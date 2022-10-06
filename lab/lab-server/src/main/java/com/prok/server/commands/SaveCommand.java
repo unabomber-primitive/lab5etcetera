@@ -1,8 +1,9 @@
 package com.prok.server.commands;
 
-import com.prok.common.Command;
-import com.prok.common.entities.Collection;
-import com.prok.common.util.FileManager;
+import com.prok.common.network.Request;
+import com.prok.common.network.Response;
+import com.prok.server.Collection;
+import com.prok.server.FileManager;
 
 public class SaveCommand implements Command {
     private Collection collection;
@@ -12,14 +13,16 @@ public class SaveCommand implements Command {
     }
 
     @Override
-    public void execute(String arg) {
-        if (arg != null) {
-            throw new IllegalArgumentException("Эта команда не поддерживает аргументы.");
+    public Response execute(Request request) {
+        if (request.args != null) {
+            return new Response(false, "Эта команда не поддерживает аргументы");
         }
         try {
             FileManager.saveFile(collection);
+            return new Response(true, "Файл сохранен");
         } catch (Exception e) {
             e.getMessage();
+            return new Response(false, e.getMessage());
         }
     }
 }

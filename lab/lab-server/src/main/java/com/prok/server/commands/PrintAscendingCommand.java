@@ -1,7 +1,8 @@
 package com.prok.server.commands;
 
-import com.prok.common.Command;
-import com.prok.common.entities.Collection;
+import com.prok.common.network.Request;
+import com.prok.common.network.Response;
+import com.prok.server.Collection;
 
 public class PrintAscendingCommand implements Command {
     private final Collection collection;
@@ -11,11 +12,12 @@ public class PrintAscendingCommand implements Command {
     }
 
     @Override
-    public void execute(String arg) {
-        if (arg != null) {
-            throw new IllegalArgumentException("Эта команда не поддерживает аргументы.");
+    public Response execute(Request request) {
+        if (request.args != null) {
+            return new Response(false, "Эта команда не поддерживает аргументы");
         }
         collection.sortByDistance();
-        System.out.println(collection.toString());
+        String out = collection.toString();
+        return new Response(true, out);
     }
 }

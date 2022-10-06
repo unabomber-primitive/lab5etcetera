@@ -1,8 +1,7 @@
 package com.prok.client;
 
-import com.prok.common.Command;
 
-public class ExecuteScriptCommand implements Command {
+public class ExecuteScriptCommand implements ClientCommand {
 
     @Override
     public void execute(String arg) {

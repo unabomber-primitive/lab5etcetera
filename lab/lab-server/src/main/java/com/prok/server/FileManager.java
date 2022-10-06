@@ -1,6 +1,5 @@
-package com.prok.common.util;
+package com.prok.server;
 
-import com.prok.common.entities.Collection;
 //import com.prok.common.entities.Route;
 import com.prok.common.entities.Route;
 import com.thoughtworks.xstream.XStream;
@@ -21,10 +20,9 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 //import java.util.ArrayList;
-import java.util.ArrayList;
+import java.util.*;
 //import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.util.concurrent.CopyOnWriteArrayList;
 //import java.io.Writer;
 //import java.util.Scanner;
 
@@ -73,7 +71,7 @@ public final class FileManager {
             }
             if (xml.length() != 0) {
                 Result res = (Result) xStream.fromXML(xml.toString());
-                collection.setCollection(res.getRoutes());
+                collection.setCollection(new CopyOnWriteArrayList<Route>(res.getRoutes()));
             }
         } catch (FileNotFoundException e) {
             System.out.println("Файл не найден. \nАдрес, переданный в переменной окружения LAB5_FILENAME: " + fileName);
@@ -90,7 +88,7 @@ public final class FileManager {
         BufferedWriter out;
         try {
             out = new BufferedWriter(new FileWriter(fileName));
-            Result res = new Result(collection.getArrayList());
+            Result res = new Result(new ArrayList<Route>(Arrays.asList(collection.getArrayList().toArray(new Route[0]))));
             ArrayList<Route> routes = res.getRoutes();
             //System.out.println(xStream.toXML(routes));
             out.write(xStream.toXML(routes));

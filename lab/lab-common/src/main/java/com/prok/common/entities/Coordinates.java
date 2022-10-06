@@ -2,7 +2,9 @@ package com.prok.common.entities;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-public class Coordinates {
+import java.io.Serializable;
+
+public class Coordinates implements Serializable {
     private static final Double X_MAXVALUE = 970.0;
     private static final Integer Y_MAXVALUE = 361;
     @XStreamAlias("x")

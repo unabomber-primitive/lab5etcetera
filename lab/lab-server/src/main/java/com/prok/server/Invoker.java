@@ -1,8 +1,9 @@
 package com.prok.server;
 
 
-import com.prok.common.Command;
-import com.prok.common.entities.Collection;
+import com.prok.common.network.Request;
+import com.prok.server.commands.Command;
+import com.prok.common.network.Response;
 
 import java.util.HashMap;
 
@@ -25,13 +26,23 @@ public class Invoker {
     }
 
 
-    public void invoke(String commandName, String arg) {
+    public Response invoke(Request request) {
+        if (!request.commandName.equals("logIn") && !request.commandName.equals("addUser")){
+            try {
+                boolean logInSuccess = collection.getDbManager().checkUser(request.username, request.password);
+                if (!logInSuccess) {
+                    return new Response(false,false, "Вы не авторизировались");
+                }
+            } catch (Exception e) {
+                return new Response(false, false, e.getMessage());
+            }
+        }
         Command command;
         try {
-            command = getCommand(commandName);
-            command.execute(arg);
+            command = getCommand(request.commandName);
+            return command.execute(request);
         } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+            return new Response(true, e.getMessage());
         }
     }
 

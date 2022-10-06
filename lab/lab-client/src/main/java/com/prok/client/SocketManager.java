@@ -7,36 +7,37 @@ import com.prok.common.network.Response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 public class SocketManager{
     SocketAddress address;
-    DatagramChannel channel;
+    DatagramSocket socket;
 
 
     public SocketManager() throws IOException {
-        channel = DatagramChannel.open();
-        address = new InetSocketAddress("localhost", 1488);
+        socket = new DatagramSocket();
+
+        address = new InetSocketAddress("localhost", 13333);
     }
 
     public void connectToServer() {
         try {
-            channel.configureBlocking(false);
-            channel.connect(address);
+            socket.connect(address);
+
+            System.out.println("connected");
         } catch (Exception e) {
             System.out.println("Проблемы с сетью, не удалось подключиться к серверу.");
         }
     }
 
     public void closeConnection() {
-        if (channel.isConnected()) {
+        if (socket.isConnected()) {
             try {
-                channel.disconnect();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
+                socket.disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -44,15 +45,15 @@ public class SocketManager{
     public Response makeRequest(Request request) {
         byte[] dataToSend = ObjSerializer.toByteArray(request);
 
-        if (!channel.isConnected()) {
-            connectToServer();
-        }
+//        if (!socket.isConnected()) {
+//            connectToServer();
+//        }
 
         try {
-            ByteBuffer buf = ByteBuffer.wrap(dataToSend);
-            do {
-                channel.write(buf);
-            } while (buf.hasRemaining());
+//            System.out.println(dataToSend);
+//            System.out.println(dataToSend.length);
+            DatagramPacket packet = new DatagramPacket(dataToSend, dataToSend.length, address);
+            socket.send(packet);
 
             Response response = receiveAnswer();
 
@@ -62,30 +63,25 @@ public class SocketManager{
             return response;
         } catch (IOException | NullPointerException e) {
             System.out.println("Команда не отправлена, попробуйте еще раз.");
+            e.printStackTrace();
             return null;
         }
     }
 
     public Response receiveAnswer() {
         long timeStart = System.currentTimeMillis();
-        ByteBuffer buffer = ByteBuffer.allocate(DefaultSettings.DEFAULT_PACKAGE_SIZE);
-        byte[] byteArray = new byte[0];
-        int bytesReceived = 0;
-
         while (System.currentTimeMillis() - timeStart < DefaultSettings.SERVER_TIMEOUT_SEC * 1000) {
             try {
-                channel.receive(buffer);
-
-                if (buffer.position() != 0) {
-                    ByteArrayOutputStream str = new ByteArrayOutputStream();
-                    str.write(byteArray);
-                    str.write(buffer.array());
-                    byteArray = str.toByteArray();
-                    buffer.clear();
-                } else if (byteArray.length != 0) {
-                    return ObjSerializer.fromByteArray(byteArray);
-                }
-            } catch (IOException ignored) { }
+                socket.setSoTimeout(DefaultSettings.SERVER_TIMEOUT_SEC * 1000);
+                byte[] buf = new byte[DefaultSettings.DEFAULT_PACKAGE_SIZE];
+                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                socket.receive(packet);
+                return ObjSerializer.fromByteArray(packet.getData());
+            } catch (SocketTimeoutException e) {
+                return null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }

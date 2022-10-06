@@ -1,5 +1,11 @@
 package com.prok.common.entities;
 
+import com.prok.common.entities.Coordinates;
+import com.prok.common.entities.Location;
+import com.prok.common.entities.Route;
+import com.prok.common.entities.RouteFieldType;
+import com.prok.common.network.Request;
+import com.prok.common.network.Response;
 import com.prok.common.util.Validator;
 
 import java.util.Scanner;
@@ -159,5 +165,13 @@ public class RouteFactory {
         Location locationTo = getLocationTo();
         Float distance = getDistance();
         return new Route(name, coordinates, locationFrom, locationTo, distance);
+    }
+    public Route getRoute(String author) {
+        String name = getName();
+        Coordinates coordinates = getCoordinates();
+        Location locationFrom = getLocationFrom();
+        Location locationTo = getLocationTo();
+        Float distance = getDistance();
+        return new Route(name, coordinates, locationFrom, locationTo, distance).setAuthor(author);
     }
 }

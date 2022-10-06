@@ -2,7 +2,9 @@ package com.prok.common.entities;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-public class Location {
+import java.io.Serializable;
+
+public class Location implements Serializable {
     @XStreamAlias("name")
     private String name; //Поле может быть null
     @XStreamAlias("x")

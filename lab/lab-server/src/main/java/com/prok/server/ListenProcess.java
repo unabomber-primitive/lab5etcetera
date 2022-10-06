@@ -1,15 +1,16 @@
 package com.prok.server;
 
-import com.prok.common.network.Request;
+import com.prok.common.network.Response;
 import com.prok.server.commands.*;
 
-import com.prok.common.Command;
-import com.prok.common.entities.Collection;
+import com.prok.server.commands.Command;
+import com.prok.server.database.DBManager;
+import com.prok.server.database.DataBaseConnection;
+import com.prok.server.socketwork.SocketManager;
 //import com.prok.common.entities.Coordinates;
-import com.prok.common.util.FileManager;
 
 import java.io.IOException;
-import java.util.NoSuchElementException;
+import java.sql.SQLException;
 
 public final class ListenProcess {
     private Collection collection;
@@ -17,20 +18,29 @@ public final class ListenProcess {
     private SocketManager socketManager;
     public ListenProcess(Collection collection) {
         if (collection == null) {
-            collection = new Collection();
-            FileManager.loadTo(collection);
+            try {
+                collection = new Collection(new DBManager(new DataBaseConnection().connect()));
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+            //FileManager.loadTo(collection);
+
         }
         this.collection = collection;
         this.invoker = invokerInit();
         try{
-            this.socketManager = new SocketManager();
+            this.socketManager = new SocketManager(this.collection, this.invoker);
         } catch (IOException e) {
             System.out.println("Проблема с сетью");
+            e.printStackTrace();
             System.exit(0);
         }
     }
 
     private Invoker invokerInit() {
+        Command logInCommand = new LogInCommand(collection);
+        Command addUserCommand = new AddUserCommand(collection);
         Command addCommand = new AddCommand(collection);
         Command saveCommand = new SaveCommand(collection);
         Command showCommand = new ShowCommand(collection);
@@ -38,7 +48,7 @@ public final class ListenProcess {
         Command clearCommand = new ClearCommand(collection);
         Command filterGreaterThanDistanceCommand = new FilterGreaterThanDistanceCommand(collection);
         Command filterLessThanDistanceCommand = new FilterLessThanDistanceCommand(collection);
-        Command helpCommand = new HelpCommand();
+        Command helpCommand = new HelpCommand(collection);
         Command infoCommand = new InfoCommand(collection);
         Command printAscendingCommand = new PrintAscendingCommand(collection);
         Command removeByIdCommand = new RemoveByIdCommand(collection);
@@ -48,6 +58,8 @@ public final class ListenProcess {
         Command updateCommand = new UpdateCommand(collection);
         //Command executeScriptCommand = new ExecuteScriptCommand(collection);
         Invoker invoker = new Invoker(collection);
+        invoker.register("logIn", logInCommand);
+        invoker.register("addUser", addUserCommand);
         invoker.register("add", addCommand);
         invoker.register("save", saveCommand);
         invoker.register("show", showCommand);
@@ -68,38 +80,48 @@ public final class ListenProcess {
     }
 
     public void startProcess() {
-        final int maxOfArgs = 2;
-        System.out.println("Программа запущена");
 
-        while (true) {
-            Request request = socketManager.getUpdates();
-
-            String[] input;
-            try {
-                input = (" " + collection.getIn().nextLine()).split("\\s+");
-            } catch (NoSuchElementException e) {
-                System.out.println("Программа завершена");
-                break;
-            }
-
-            try {
-                if (input.length > maxOfArgs + 1) {
-                    System.out.println("Введены лишние аргументы");
-                } else if (input.length == maxOfArgs + 1) {
-                    //System.out.println(input[1] + input[2]);
-                    invoker.invoke(input[1], input[2]);
-                } else if (input.length == 2) {
-                    invoker.invoke(input[1], null);
-                } else {
-                    System.out.println("Вы не ввели команду");
-                }
-            } catch (NoSuchElementException e) {
-                System.out.println("\nПрограмма завершена");
-                break;
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
+        try {
+            socketManager.process();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+
+//        final int maxOfArgs = 2;
+//        System.out.println("Программа запущена");
+//
+//        while (true) {
+//            socketManager.getUpdates();
+//
+//
+//            String[] args = request.args;
+//            String commandName = request.commandName;
+////            try {
+////                input = (" " + collection.getIn().nextLine()).split("\\s+");
+////            } catch (NoSuchElementException e) {
+////                System.out.println("Программа завершена");
+////                break;
+////            }
+//
+//            try {
+//                if (args!=null && args.length > 1) {
+//                    socketManager.sendResponse(new Response(true, "Введены лишние аргументы"));
+//                } else if (args!=null && args.length == 1) {
+//                    //System.out.println(input[1] + input[2]);
+//                    invoker.invoke(commandName, args[0]);
+//                } else if (commandName != null && !"".equals(commandName)) {
+//                    invoker.invoke(commandName, null);
+//                } else {
+//                    socketManager.sendResponse(new Response(true,"Вы не ввели команду"));
+//                }
+//            } catch (Exception e) {
+//                socketManager.sendResponse(new Response(true, e.getMessage()));
+//                System.out.println(e.getMessage());
+//                e.printStackTrace();
+//            }
+//
+//
+//        }
     }
 }

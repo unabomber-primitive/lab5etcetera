@@ -1,7 +1,8 @@
 package com.prok.server.commands;
 
-import com.prok.common.Command;
-import com.prok.common.entities.Collection;
+import com.prok.common.network.Request;
+import com.prok.common.network.Response;
+import com.prok.server.Collection;
 import com.prok.common.entities.RouteFieldType;
 import com.prok.common.util.Validator;
 
@@ -13,13 +14,14 @@ public class FilterGreaterThanDistanceCommand implements Command {
     }
 
     @Override
-    public void execute(String arg) {
+    public Response execute(Request request) {
         try {
+            String arg = request.args[0];
             Float distance = Float.valueOf(arg);
             Validator.validateField(distance, RouteFieldType.DISTANCE);
-            System.out.println(collection.greaterThanDistanceToString(distance));
+            return new Response(true, collection.greaterThanDistanceToString(distance));
         } catch (NullPointerException | IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+            return new Response(true,e.getMessage());
         }
     }
 }

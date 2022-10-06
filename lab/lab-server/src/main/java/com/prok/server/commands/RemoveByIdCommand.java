@@ -1,7 +1,8 @@
 package com.prok.server.commands;
 
-import com.prok.common.Command;
-import com.prok.common.entities.Collection;
+import com.prok.common.network.Request;
+import com.prok.common.network.Response;
+import com.prok.server.Collection;
 
 import java.util.ConcurrentModificationException;
 
@@ -13,12 +14,16 @@ public class RemoveByIdCommand implements Command {
     }
 
     @Override
-    public void execute(String arg) {
+    public Response execute(Request request) {
         try {
-            Integer id = Integer.parseInt(arg);
-            collection.removeById(id);
+            Integer id = Integer.parseInt(request.args[0]);
+            collection.removeById(id, request.username);
+            return new Response(true, "Элемент с указанным ID удален");
         } catch (NullPointerException | IllegalArgumentException e) {
             System.out.println(e.getMessage());
-        } catch (ConcurrentModificationException e) {}
+            return new Response(true, e.getMessage());
+        } catch (Exception e) {
+            return new Response(false,e.getMessage());
+        }
     }
 }

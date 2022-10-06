@@ -1,8 +1,9 @@
 package com.prok.server.commands;
 
-import com.prok.common.Command;
-import com.prok.common.entities.Collection;
 import com.prok.common.entities.RouteFactory;
+import com.prok.common.network.Request;
+import com.prok.common.network.Response;
+import com.prok.server.Collection;
 
 public class UpdateCommand implements Command {
     private final Collection collection;
@@ -12,13 +13,13 @@ public class UpdateCommand implements Command {
     }
 
     @Override
-    public void execute(String arg) {
+    public Response execute(Request request) {
         try {
-            Integer id = Integer.parseInt(arg);
-            RouteFactory factory = new RouteFactory(collection.getIn());
-            collection.replaceById(id, factory.getRoute());
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+            Integer id = Integer.parseInt(request.args[0]);
+            collection.replaceById(id, request.route);
+            return new Response(true,"Объект коллекции обновлен");
+        } catch (Exception e) {
+            return new Response(false,e.getMessage());
         }
     }
 }
